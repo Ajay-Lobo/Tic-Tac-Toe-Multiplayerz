@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Square.css";
+
 const circleSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -42,40 +43,73 @@ const crossSvg = (
   </svg>
 );
 
-function Square({ setGameState,finishArrayState,setFinishState, finishState, id, currentPlayer, setCurrentPlayer }) {
+const Square = ({
+  gameState,
+  setGameState,
+  socket,
+  playingAs,
+  currentElement,
+  finishedArrayState,
+  setFinishedState,
+  finishedState,
+  id,
+  currentPlayer,
+  setCurrentPlayer,
+}) => {
   const [icon, setIcon] = useState(null);
 
   const clickOnSquare = () => {
-    if(finishState){
+    if (playingAs !== currentPlayer) {
       return;
     }
+
+    if (finishedState) {
+      return;
+    }
+
     if (!icon) {
       if (currentPlayer === "circle") {
         setIcon(circleSvg);
       } else {
         setIcon(crossSvg);
       }
-      const myCurrentPlayer = currentPlayer
+
+      const myCurrentPlayer = currentPlayer;
+      socket.emit("playerMoveFromClient", {
+        state: {
+          id,
+          sign: myCurrentPlayer,
+        },
+      });
+
       setCurrentPlayer(currentPlayer === "circle" ? "cross" : "circle");
 
-        setGameState((prevState) =>{
-            const newState = [...prevState];
-            const rowIndex = id / 3 | 0;
-            const colIndex = id % 3;
-            newState[rowIndex][colIndex] = myCurrentPlayer;
-           return newState;
-    });
+      setGameState((prevState) => {
+        let newState = [...prevState];
+        const rowIndex = Math.floor(id / 3);
+        const colIndex = id % 3;
+        newState[rowIndex][colIndex] = myCurrentPlayer;
+        return newState;
+      });
     }
   };
 
   return (
-    <>
-      <div onClick={clickOnSquare} className={`square ${finishState ? 'not-allowed' : ''}
-      ${finishArrayState.includes(id) ? finishState + '-won':''}`}>
-        {icon}
-      </div>
-    </>
+    <div
+      onClick={clickOnSquare}
+      className={`square ${finishedState ? "not-allowed" : ""}
+      ${currentPlayer !== playingAs ? "not-allowed" : ""}
+       ${finishedArrayState.includes(id) ? finishedState + "-won" : ""}
+       ${finishedState && finishedState !== playingAs ? "grey-background" : ""}
+       `}
+    >
+      {currentElement === "circle"
+        ? circleSvg
+        : currentElement === "cross"
+        ? crossSvg
+        : icon}
+    </div>
   );
-}
+};
 
 export default Square;
