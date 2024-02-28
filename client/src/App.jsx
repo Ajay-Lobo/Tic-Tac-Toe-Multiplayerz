@@ -89,7 +89,13 @@ function App() {
     setPlayingOnline(true);
   });
 
-  
+  socket?.on("OpponentNotFound", () => {
+    setOpponentName(false);
+  });
+
+  socket?.on("OpponentFound", () => {
+    setOpponentName(data.opponentName);
+  });
   async function playOnlineClick() {
     const result = await takePlayerName();
 
@@ -113,7 +119,11 @@ function App() {
       </div>
     );
   }
-  return (
+
+  if(playingOnline && !opponentName){
+    return (<div className="waiting"><p>Waiting for the Opponent .....</p></div>);
+  }
+    return (
     <>
       <div className="main-div">
         <div className="move-detection">

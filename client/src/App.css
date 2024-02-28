@@ -75,4 +75,18 @@ font-family: sans-serif;
   
 }
 
+.waiting{
+  display: flex;
+  font-size: 40px;
+  justify-content: center;
+  /* margin-top: 45vh; */
+  align-items: center;
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+ 
+}
+
 
